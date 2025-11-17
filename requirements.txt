@@ -1,0 +1,5 @@
+Flask==2.3.3
+google-generativeai==0.8.5
+python-dotenv==1.2.1
+pdf2image==1.17.0
+Pillow==10.4.0

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Powered Resume Analyser and Job Matcher</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: #f5f5f5; padding: 20px; border-radius: 10px; }
+        h1 { color: #333; text-align: center; }
+        textarea, input[type="file"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #007bff; }
+        .loading { display: none; text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Powered Resume Analyser And Job Matcher</h1>
+        
+        <form id="resumeForm" enctype="multipart/form-data">
+            <label for="job_description">Job Description:</label>
+            <textarea id="job_description" name="job_description" rows="6" placeholder="Enter the job description here..."></textarea>
+            
+            <label for="resume">Upload your resume (PDF):</label>
+            <input type="file" id="resume" name="resume" accept=".pdf" required>
+            
+            <div>
+                <button type="button" onclick="analyzeResume('review')">Tell Me About the Resume</button>
+                <button type="button" onclick="analyzeResume('percentage')">Percentage Match</button>
+            </div>
+        </form>
+        
+        <div class="loading" id="loading">Analyzing your resume... Please wait.</div>
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function analyzeResume(type) {
+            const form = document.getElementById('resumeForm');
+            const formData = new FormData(form);
+            formData.append('analysis_type', type);
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('result').innerHTML = `<h3>Analysis Result:</h3><p>${data.response.replace(/\n/g, '<br>')}</p>`;
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    document.getElementById('result').innerHTML = `<h3>Error:</h3><p style="color: red;">${data.error}</p>`;
+                    document.getElementById('result').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<h3>Error:</h3><p style="color: red;">Failed to analyze resume. Please try again.</p>`;
+                document.getElementById('result').style.display = 'block';
+            }
+            
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
