@@ -123,6 +123,13 @@
         
         async function analyzeResume(type) {
             const form = document.getElementById('resumeForm');
+            const resumeFile = document.getElementById('resume').files[0];
+            
+            if (!resumeFile) {
+                alert('Please upload a resume PDF file');
+                return;
+            }
+            
             const formData = new FormData(form);
             formData.append('analysis_type', type);
             

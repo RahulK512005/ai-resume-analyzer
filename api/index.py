@@ -13,8 +13,8 @@ app = Flask(__name__, template_folder='../templates')
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def get_gemini_response(input_text, pdf_content, prompt):
-    model = genai.GenerativeModel('gemini-2.5-flash') 
-    response = model.generate_content([input_text, pdf_content[0], prompt])
+    model = genai.GenerativeModel('gemini-1.5-flash') 
+    response = model.generate_content([prompt, pdf_content[0], input_text])
     return response.text
 
 def input_pdf_setup(uploaded_file):
@@ -41,29 +41,32 @@ def index():
 @app.route('/analyze', methods=['POST'])
 def analyze_resume():
     try:
-        job_description = request.form.get('job_description')
+        job_description = request.form.get('job_description', '').strip()
         analysis_type = request.form.get('analysis_type')
         uploaded_file = request.files.get('resume')
         
-        if not uploaded_file:
-            return jsonify({'error': 'Please upload a resume'}), 400
+        if not uploaded_file or uploaded_file.filename == '':
+            return jsonify({'error': 'Please upload a resume PDF file'}), 400
+        
+        if not uploaded_file.filename.lower().endswith('.pdf'):
+            return jsonify({'error': 'Only PDF files are supported'}), 400
             
         pdf_content = input_pdf_setup(uploaded_file)
         
         if analysis_type == 'review':
-            prompt = """You are an experienced Technical Human Resource Manager, your task is to review the provided resume against the job description. 
-            Please share your professional evaluation on whether the candidate's profile aligns with the role. 
+            prompt = """You are an experienced Technical Human Resource Manager. Review the provided resume against the job description. 
+            Share your professional evaluation on whether the candidate's profile aligns with the role. 
             Highlight the strengths and weaknesses of the applicant in relation to the specified job requirements."""
         else:
-            prompt = """You are a skilled ATS (Applicant Tracking System) scanner with a deep understanding of data science and ATS functionality, 
-            your task is to evaluate the resume against the provided job description. Give me the percentage of match if the resume matches
-            the job description. First the output should come as percentage and then keywords missing and last final thoughts."""
+            prompt = """You are a skilled ATS (Applicant Tracking System) scanner with deep understanding of ATS functionality. 
+            Evaluate the resume against the provided job description. Give the percentage of match if the resume matches the job description. 
+            Format: First show percentage, then keywords missing, and finally your thoughts."""
         
         response = get_gemini_response(job_description, pdf_content, prompt)
         return jsonify({'response': response})
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Error processing resume: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
