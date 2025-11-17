@@ -3,40 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Powered Resume Analyser and Job Matcher</title>
+    <title>AI Resume Analyzer - Smart Career Insights</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .container { background: #f5f5f5; padding: 20px; border-radius: 10px; }
-        h1 { color: #333; text-align: center; }
-        textarea, input[type="file"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
-        button:hover { background: #0056b3; }
-        .result { margin-top: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #007bff; }
-        .loading { display: none; text-align: center; color: #666; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .logo { font-size: 2.5rem; font-weight: 700; color: white; margin-bottom: 10px; }
+        .subtitle { color: rgba(255,255,255,0.9); font-size: 1.1rem; font-weight: 300; }
+        .main-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 24px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 30px; }
+        label { display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 0.95rem; }
+        textarea { width: 100%; padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-family: inherit; font-size: 0.95rem; resize: vertical; transition: all 0.3s ease; }
+        textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .file-upload { position: relative; display: inline-block; width: 100%; }
+        .file-input { width: 100%; padding: 16px; border: 2px dashed #d1d5db; border-radius: 12px; background: #f9fafb; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+        .file-input:hover { border-color: #667eea; background: #f0f4ff; }
+        .file-input.dragover { border-color: #667eea; background: #e0e7ff; }
+        input[type="file"] { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .buttons { display: flex; gap: 16px; margin-top: 30px; }
+        .btn { flex: 1; padding: 16px 24px; border: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.3); }
+        .btn-secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245,87,108,0.3); }
+        .loading { display: none; text-align: center; padding: 40px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top: 4px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .result { margin-top: 30px; padding: 24px; background: white; border-radius: 16px; border-left: 4px solid #667eea; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: none; }
+        .result h3 { color: #374151; margin-bottom: 16px; font-weight: 600; }
+        .result-content { color: #6b7280; line-height: 1.6; }
+        .file-name { margin-top: 8px; font-size: 0.9rem; color: #667eea; font-weight: 500; }
+        @media (max-width: 768px) { .container { padding: 16px; } .main-card { padding: 24px; } .buttons { flex-direction: column; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>AI Powered Resume Analyser And Job Matcher</h1>
+        <div class="header">
+            <div class="logo"><i class="fas fa-brain"></i> ResumeAI</div>
+            <div class="subtitle">Transform your career with AI-powered resume insights</div>
+        </div>
         
-        <form id="resumeForm" enctype="multipart/form-data">
-            <label for="job_description">Job Description:</label>
-            <textarea id="job_description" name="job_description" rows="6" placeholder="Enter the job description here..."></textarea>
+        <div class="main-card">
+            <form id="resumeForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="job_description"><i class="fas fa-briefcase"></i> Job Description</label>
+                    <textarea id="job_description" name="job_description" rows="6" placeholder="Paste the job description you're targeting..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="resume"><i class="fas fa-file-pdf"></i> Upload Resume (PDF)</label>
+                    <div class="file-upload">
+                        <div class="file-input" id="fileInput">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #9ca3af; margin-bottom: 8px;"></i>
+                            <div>Drop your resume here or <strong>click to browse</strong></div>
+                            <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 4px;">PDF files only, max 10MB</div>
+                        </div>
+                        <input type="file" id="resume" name="resume" accept=".pdf" required>
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button type="button" class="btn btn-primary" onclick="analyzeResume('review')">
+                        <i class="fas fa-search"></i> Analyze Resume
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="analyzeResume('percentage')">
+                        <i class="fas fa-percentage"></i> ATS Score
+                    </button>
+                </div>
+            </form>
             
-            <label for="resume">Upload your resume (PDF):</label>
-            <input type="file" id="resume" name="resume" accept=".pdf" required>
-            
-            <div>
-                <button type="button" onclick="analyzeResume('review')">Tell Me About the Resume</button>
-                <button type="button" onclick="analyzeResume('percentage')">Percentage Match</button>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div style="color: #667eea; font-weight: 500;">AI is analyzing your resume...</div>
+                <div style="color: #9ca3af; font-size: 0.9rem; margin-top: 8px;">This may take a few moments</div>
             </div>
-        </form>
-        
-        <div class="loading" id="loading">Analyzing your resume... Please wait.</div>
-        <div id="result" class="result" style="display: none;"></div>
+            
+            <div id="result" class="result"></div>
+        </div>
     </div>
 
     <script>
+        const fileInput = document.getElementById('resume');
+        const fileInputDiv = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                fileName.textContent = `📄 ${e.target.files[0].name}`;
+                fileInputDiv.style.borderColor = '#667eea';
+                fileInputDiv.style.background = '#f0f4ff';
+            }
+        });
+        
+        fileInputDiv.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            fileInputDiv.classList.add('dragover');
+        });
+        
+        fileInputDiv.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            fileInputDiv.classList.remove('dragover');
+        });
+        
+        fileInputDiv.addEventListener('drop', function(e) {
+            e.preventDefault();
+            fileInputDiv.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                fileInput.files = files;
+                fileName.textContent = `📄 ${files[0].name}`;
+                fileInputDiv.style.borderColor = '#667eea';
+                fileInputDiv.style.background = '#f0f4ff';
+            }
+        });
+        
         async function analyzeResume(type) {
             const form = document.getElementById('resumeForm');
             const formData = new FormData(form);
@@ -54,14 +138,15 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    document.getElementById('result').innerHTML = `<h3>Analysis Result:</h3><p>${data.response.replace(/\n/g, '<br>')}</p>`;
+                    const title = type === 'review' ? '🎯 Resume Analysis' : '📊 ATS Compatibility Score';
+                    document.getElementById('result').innerHTML = `<h3>${title}</h3><div class="result-content">${data.response.replace(/\n/g, '<br>')}</div>`;
                     document.getElementById('result').style.display = 'block';
                 } else {
-                    document.getElementById('result').innerHTML = `<h3>Error:</h3><p style="color: red;">${data.error}</p>`;
+                    document.getElementById('result').innerHTML = `<h3>❌ Error</h3><div class="result-content" style="color: #ef4444;">${data.error}</div>`;
                     document.getElementById('result').style.display = 'block';
                 }
             } catch (error) {
-                document.getElementById('result').innerHTML = `<h3>Error:</h3><p style="color: red;">Failed to analyze resume. Please try again.</p>`;
+                document.getElementById('result').innerHTML = `<h3>❌ Error</h3><div class="result-content" style="color: #ef4444;">Failed to analyze resume. Please try again.</div>`;
                 document.getElementById('result').style.display = 'block';
             }
             
