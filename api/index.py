@@ -59,7 +59,7 @@ def analyze_resume():
             your task is to evaluate the resume against the provided job description. Give me the percentage of match if the resume matches
             the job description. First the output should come as percentage and then keywords missing and last final thoughts."""
         
-        response = get_gemini_response(prompt, pdf_content, job_description)
+        response = get_gemini_response(job_description, pdf_content, prompt)
         return jsonify({'response': response})
         
     except Exception as e:
