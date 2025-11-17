@@ -3,8 +3,7 @@ from dotenv import load_dotenv
 import base64
 import os
 import io
-from PIL import Image
-import pdf2image
+import PyPDF2
 import google.generativeai as genai
 
 load_dotenv()
@@ -19,16 +18,10 @@ def get_gemini_response(input_text, pdf_content, prompt):
 
 def input_pdf_setup(uploaded_file):
     if uploaded_file:
-        images = pdf2image.convert_from_bytes(uploaded_file.read())
-        first_page = images[0]
-        
-        img_byte_arr = io.BytesIO()
-        first_page.save(img_byte_arr, format='JPEG')
-        img_byte_arr = img_byte_arr.getvalue()
-
+        pdf_data = uploaded_file.read()
         pdf_parts = [{
-            "mime_type": "image/jpeg",
-            "data": base64.b64encode(img_byte_arr).decode()
+            "mime_type": "application/pdf",
+            "data": base64.b64encode(pdf_data).decode()
         }]
         return pdf_parts
     else:
