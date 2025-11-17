@@ -56,12 +56,12 @@
                 <div class="form-group">
                     <label for="resume"><i class="fas fa-file-pdf"></i> Upload Resume (PDF)</label>
                     <div class="file-upload">
-                        <div class="file-input" id="fileInput">
+                        <div class="file-input" id="fileInput" onclick="document.getElementById('resume').click()">
                             <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #9ca3af; margin-bottom: 8px;"></i>
                             <div>Drop your resume here or <strong>click to browse</strong></div>
                             <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 4px;">PDF files only, max 10MB</div>
                         </div>
-                        <input type="file" id="resume" name="resume" accept=".pdf" required>
+                        <input type="file" id="resume" name="resume" accept=".pdf" required style="display: none;">
                         <div class="file-name" id="fileName"></div>
                     </div>
                 </div>
