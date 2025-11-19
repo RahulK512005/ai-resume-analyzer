@@ -4,26 +4,30 @@ import base64
 import os
 import io
 import PyPDF2
-import google.generativeai as genai
+from openai import OpenAI
 
 load_dotenv()
 
 app = Flask(__name__, template_folder='../templates')
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_gemini_response(input_text, pdf_content, prompt):
-    model = genai.GenerativeModel('gemini-1.5-pro-latest') 
-    response = model.generate_content([prompt, pdf_content[0], input_text])
-    return response.text
+def get_openai_response(input_text, pdf_text, prompt):
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": f"Job Description:\n{input_text}\n\nResume:\n{pdf_text}"}
+        ]
+    )
+    return response.choices[0].message.content
 
 def input_pdf_setup(uploaded_file):
     if uploaded_file:
-        pdf_data = uploaded_file.read()
-        pdf_parts = [{
-            "mime_type": "application/pdf",
-            "data": base64.b64encode(pdf_data).decode()
-        }]
-        return pdf_parts
+        pdf_reader = PyPDF2.PdfReader(io.BytesIO(uploaded_file.read()))
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+        return text
     else:
         raise FileNotFoundError("No file uploaded")
 
@@ -55,7 +59,7 @@ def analyze_resume():
             Evaluate the resume against the provided job description. Give the percentage of match if the resume matches the job description. 
             Format: First show percentage, then keywords missing, and finally your thoughts."""
         
-        response = get_gemini_response(job_description, pdf_content, prompt)
+        response = get_openai_response(job_description, pdf_content, prompt)
         return jsonify({'response': response})
         
     except Exception as e:
