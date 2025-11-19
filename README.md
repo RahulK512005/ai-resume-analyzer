@@ -1,25 +1,26 @@
 # AI Resume Analyzer
 
-An AI-powered web application that analyzes resumes against job descriptions using Google's Gemini AI.
+An AI-powered web application that analyzes resumes against job descriptions using OpenAI GPT-4o-mini.
 
 ## Features
 
 - **Resume Analysis**: Professional HR evaluation of candidate profiles
 - **ATS Scoring**: Percentage match calculation with missing keywords
-- **PDF Processing**: Converts resume PDFs to images for AI analysis
+- **PDF Processing**: Extracts text from PDF resumes for AI analysis
 - **Real-time Results**: Instant feedback on resume-job alignment
+- **Premium UI/UX**: Modern gradient design with drag-and-drop file upload
 
 ## Live Demo
 
-🚀 **[Try it now](https://ai-resume-analyzer-klit182wa-rahuls-projects-8971527f.vercel.app)**
+🚀 **[Try it now](https://ai-resume-analyzer-jb16mqocg-rahuls-projects-8971527f.vercel.app)**
 
 ## Tech Stack
 
 - **Backend**: Flask (Python)
-- **AI**: Google Gemini 2.5 Flash
+- **AI**: OpenAI GPT-4o-mini
 - **Frontend**: HTML, CSS, JavaScript
 - **Deployment**: Vercel
-- **PDF Processing**: pdf2image, Pillow
+- **PDF Processing**: PyPDF2
 
 ## Quick Start
 
@@ -39,7 +40,7 @@ An AI-powered web application that analyzes resumes against job descriptions usi
 3. **Set up environment**
    ```bash
    cp .env.example .env
-   # Add your Google API key to .env
+   # Add your OpenAI API key to .env
    ```
 
 4. **Run locally**
@@ -60,20 +61,20 @@ An AI-powered web application that analyzes resumes against job descriptions usi
    ```
 
 3. **Set environment variables in Vercel dashboard**
-   - `GOOGLE_API_KEY`: Your Google Gemini API key
+   - `OPENAI_API_KEY`: Your OpenAI API key
 
 ## Usage
 
 1. Enter job description
-2. Upload PDF resume
+2. Upload PDF resume (drag-and-drop or click to browse)
 3. Choose analysis type:
-   - **Resume Review**: Professional evaluation
-   - **Percentage Match**: ATS compatibility score
-4. Get AI-powered insights
+   - **Analyze Resume**: Professional HR evaluation
+   - **ATS Score**: Compatibility percentage with missing keywords
+4. Get AI-powered insights instantly
 
 ## API Setup
 
-Get your Google API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+Get your OpenAI API key from [OpenAI Platform](https://platform.openai.com/api-keys)
 
 ## Contributing
 
