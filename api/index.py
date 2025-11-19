@@ -12,7 +12,7 @@ app = Flask(__name__, template_folder='../templates')
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def get_gemini_response(input_text, pdf_content, prompt):
-    model = genai.GenerativeModel('gemini-1.5-flash') 
+    model = genai.GenerativeModel('gemini-1.5-pro-latest') 
     response = model.generate_content([prompt, pdf_content[0], input_text])
     return response.text
 
