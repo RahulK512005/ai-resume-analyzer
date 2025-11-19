@@ -5,21 +5,31 @@ import os
 import io
 import PyPDF2
 from openai import OpenAI
+import httpx
 
 load_dotenv()
 
 app = Flask(__name__, template_folder='../templates')
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    timeout=httpx.Timeout(60.0, connect=10.0),
+    max_retries=2
+)
 
 def get_openai_response(input_text, pdf_text, prompt):
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": f"Job Description:\n{input_text}\n\nResume:\n{pdf_text}"}
-        ]
-    )
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": f"Job Description:\n{input_text}\n\nResume:\n{pdf_text[:4000]}"}
+            ],
+            max_tokens=1000,
+            temperature=0.7
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        raise Exception(f"OpenAI API error: {str(e)}")
 
 def input_pdf_setup(uploaded_file):
     if uploaded_file:
@@ -59,11 +69,20 @@ def analyze_resume():
             Evaluate the resume against the provided job description. Give the percentage of match if the resume matches the job description. 
             Format: First show percentage, then keywords missing, and finally your thoughts."""
         
+        if not pdf_content or len(pdf_content.strip()) < 50:
+            return jsonify({'error': 'Could not extract text from PDF. Please ensure the PDF contains readable text.'}), 400
+        
         response = get_openai_response(job_description, pdf_content, prompt)
         return jsonify({'response': response})
         
     except Exception as e:
-        return jsonify({'error': f'Error processing resume: {str(e)}'}), 500
+        error_msg = str(e)
+        if 'API key' in error_msg:
+            return jsonify({'error': 'API key configuration error. Please contact support.'}), 500
+        elif 'timeout' in error_msg.lower():
+            return jsonify({'error': 'Request timeout. Please try again.'}), 500
+        else:
+            return jsonify({'error': f'Error: {error_msg}'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
